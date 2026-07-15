@@ -196,67 +196,78 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const caption = post.caption || '';
         const link = post.link || 'https://www.instagram.com/celiaserpi/';
-        const image = post.image || 'https://picsum.photos/400/400?random=1'; // Fallback if image missing
+        const image = (post.image && !post.image.includes('unsplash.com') && !post.image.includes('picsum.photos')) ? post.image : null;
         
         const isTikTok = link.includes('tiktok.com');
         const iconClass = isTikTok ? 'fa-brands fa-tiktok' : 'fa-brands fa-instagram';
         const platformName = isTikTok ? 'TikTok' : 'Instagram';
         
-        card.innerHTML = `
-            <a href="${link}" target="_blank" aria-label="Ver publicación en ${platformName}">
-                <div class="instagram-img-wrapper">
-                    <img src="${image}" alt="${caption.slice(0, 80)}" class="instagram-img" loading="lazy">
-                    <div class="instagram-overlay">
-                        <i class="${iconClass}"></i>
+        if (image) {
+            card.className = 'instagram-card';
+            card.innerHTML = `
+                <a href="${link}" target="_blank" aria-label="Ver publicación en ${platformName}">
+                    <div class="instagram-img-wrapper">
+                        <img src="${image}" alt="${caption.slice(0, 80)}" class="instagram-img" loading="lazy">
+                        <div class="instagram-overlay">
+                            <i class="${iconClass}"></i>
+                        </div>
                     </div>
-                </div>
-                <div class="instagram-body">
-                    <p class="instagram-caption">${caption || 'Sin pie de foto'}</p>
-                    <span class="instagram-date">${formattedDate}</span>
-                </div>
-            </a>
-        `;
+                    <div class="instagram-body">
+                        <p class="instagram-caption">${caption || 'Sin pie de foto'}</p>
+                        <span class="instagram-date">${formattedDate}</span>
+                    </div>
+                </a>
+            `;
+        } else {
+            card.className = 'instagram-card text-only';
+            card.innerHTML = `
+                <a href="${link}" target="_blank" aria-label="Ver publicación en ${platformName}">
+                    <div class="instagram-body">
+                        <div class="instagram-text-header">
+                            <i class="${iconClass}"></i>
+                            <span class="instagram-platform">${platformName}</span>
+                        </div>
+                        <p class="instagram-caption">${caption || 'Sin pie de foto'}</p>
+                        <span class="instagram-date">${formattedDate}</span>
+                    </div>
+                </a>
+            `;
+        }
         return card;
     }
     
     function showFallbackFeed() {
         if (!instagramGrid) return;
         
-        // Curated backup posts for Celia's literary profile
+        // Curated backup posts for Celia's literary profile without stock photos
         const backupPosts = [
             {
-                image: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=600&auto=format&fit=crop',
                 caption: '📖 Recomendación del mes: El Imperio del Vampiro. Una obra maestra de la fantasía oscura con un ritmo brutal y personajes inolvidables. ¿Quién más está esperando la tercera parte? 🧛‍♂️✨',
                 date: '2026-07-10',
                 link: 'https://www.instagram.com/celiaserpi/'
             },
             {
-                image: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?q=80&w=600&auto=format&fit=crop',
                 caption: '✍️ ¿Cómo corregir la redundancia en tus textos? Uno de los errores más comunes al escribir ficción es repetir conceptos innecesariamente. Aquí te dejo 3 trucos rápidos de estilo editorial. #consejosdeescritura',
                 date: '2026-07-05',
                 link: 'https://www.instagram.com/celiaserpi/'
             },
             {
-                image: 'https://images.unsplash.com/photo-1474932430478-367dbb6832c1?q=80&w=600&auto=format&fit=crop',
                 caption: '📚 Detrás de las cámaras de un informe de lectura. Así es como analizo una novela: estructura, ritmo, construcción del worldbuilding y la verosimilitud de la trama. ¡Pronto más consejos!',
                 date: '2026-06-28',
                 link: 'https://www.instagram.com/celiaserpi/'
             },
             {
-                image: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=600&auto=format&fit=crop',
                 caption: '❓ ¿Sabías que "sino" y "si no" significan cosas totalmente distintas? Aprender a diferenciarlos es clave para que tus textos no pierdan profesionalidad. Desliza para ver ejemplos. #gramatica',
                 date: '2026-06-20',
                 link: 'https://www.instagram.com/celiaserpi/'
             },
             {
-                image: 'https://images.unsplash.com/photo-1457369804613-52c61a468e7d?q=80&w=600&auto=format&fit=crop',
                 caption: '✨ "Un libro debe ser el hacha que rompa el mar helado dentro de nosotros". Escribir es un acto de valentía, y mi labor es ayudarte a que esa voz suene clara y potente. ¡Feliz semana! 🍂',
                 date: '2026-06-15',
                 link: 'https://www.instagram.com/celiaserpi/'
             },
             {
-                image: 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?q=80&w=600&auto=format&fit=crop',
-                caption: '📢 ¡Ya disponible la opción de muestra de corrección gratuita! Si tienes dudas sobre qué nivel de corrección necesita tu manuscrito, mándame 3 páginas y te enviaré una muestra sin compromiso. ✍️',
+                caption: '📢 ¿Dudas sobre qué tipo de corrección necesita tu manuscrito? Cuéntame tu proyecto en el formulario y te daré un presupuesto detallado sin compromiso. ✍️',
                 date: '2026-06-08',
                 link: 'https://www.instagram.com/celiaserpi/'
             }

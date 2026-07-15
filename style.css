@@ -821,6 +821,47 @@ section {
     font-weight: 500;
 }
 
+
+/* Text-only layout for cards without images */
+.instagram-card.text-only {
+    display: flex;
+    flex-direction: column;
+}
+
+.instagram-card.text-only .instagram-body {
+    height: 100%;
+    min-height: 250px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 2rem;
+}
+
+.instagram-text-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--accent);
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin-bottom: 1.2rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.instagram-platform {
+    color: var(--text-muted);
+}
+
+.instagram-card.text-only .instagram-caption {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--text-primary);
+    -webkit-line-clamp: 6;
+    flex-grow: 1;
+    margin-bottom: 1.5rem;
+}
+
 .feed-cta {
     text-align: center;
 }
