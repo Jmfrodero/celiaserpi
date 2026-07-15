@@ -1,7 +1,7 @@
 // Supabase Client Initialization
 // REEMPLAZA ESTAS CLAVES CON LAS DE TU PROPIO PROYECTO DE SUPABASE
-const SUPABASE_URL = "YOUR_SUPABASE_URL_HERE";
-const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY_HERE";
+const SUPABASE_URL = "https://cmlohjjivrmwavwdwbtv.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNtbG9oamppdnJtd2F2d2R3YnR2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQxNDEzMDMsImV4cCI6MjA5OTcxNzMwM30.NEH874ZBoyAIktmG2c9q5CzcAgXOmgTy2bHPIuB81MA";
 
 let supabaseClient = null;
 if (typeof window.supabase !== 'undefined' && SUPABASE_URL !== "YOUR_SUPABASE_URL_HERE" && SUPABASE_ANON_KEY !== "YOUR_SUPABASE_ANON_KEY_HERE") {
