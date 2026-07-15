@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración | Celia Serpi</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="admin-body-bg">
+
+    <!-- LOGIN CONTAINER -->
+    <div id="login-container" class="admin-login-wrapper">
+        <div class="admin-login-card">
+            <h1 class="logo-serif text-center">Celia Serpi</h1>
+            <p class="admin-subtitle text-center">Panel de Control</p>
+            
+            <form id="login-form" class="contact-form">
+                <div class="form-group">
+                    <label for="username">Usuario</label>
+                    <input type="text" id="username" required placeholder="Tu usuario">
+                </div>
+                <div class="form-group">
+                    <label for="password">Contraseña</label>
+                    <input type="password" id="password" required placeholder="••••••••">
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-block" id="login-submit">
+                    <span class="btn-text">Iniciar Sesión</span>
+                    <i class="fa-solid fa-right-to-bracket"></i>
+                </button>
+                <div id="login-status" class="form-status"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- DASHBOARD CONTAINER (Hidden by default) -->
+    <div id="dashboard-container" class="admin-dashboard-wrapper" style="display: none;">
+        <header class="admin-dashboard-header">
+            <div class="container header-container">
+                <div class="logo">
+                    <span class="logo-serif">Celia Serpi</span>
+                    <span class="logo-subtitle">Consola de Administración</span>
+                </div>
+                <button id="logout-btn" class="btn btn-secondary">
+                    <span>Cerrar Sesión</span>
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
+            </div>
+        </header>
+
+        <main class="container admin-main">
+            <div class="admin-grid">
+                
+                <!-- Left: Form to add post -->
+                <div class="admin-form-section">
+                    <div class="contact-form-container">
+                        <h3 class="logo-serif">Nueva Publicación</h3>
+                        <p class="admin-form-desc">Crea una nota de texto para tu comunidad, opcionalmente enlazada a tus redes.</p>
+                        
+                        <form id="post-form" class="contact-form">
+                            <div class="form-group">
+                                <label for="post-caption">Contenido / Texto</label>
+                                <textarea id="post-caption" required rows="6" placeholder="Escribe aquí tu reseña de libro, consejo de escritura o noticia..."></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="post-link">Enlace de Redes (Opcional)</label>
+                                <input type="url" id="post-link" placeholder="https://www.instagram.com/p/... o TikTok link">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="post-image">Enlace de Imagen (Opcional)</label>
+                                <input type="url" id="post-image" placeholder="https://ejemplo.com/imagen.jpg (Dejar en blanco para post de solo texto)">
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary btn-block" id="post-submit">
+                                <span class="btn-text">Publicar en la Web</span>
+                                <i class="fa-solid fa-paper-plane"></i>
+                            </button>
+                            <div id="post-status" class="form-status"></div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Right: List of current posts -->
+                <div class="admin-list-section">
+                    <div class="contact-form-container">
+                        <h3 class="logo-serif">Publicaciones Activas</h3>
+                        <p class="admin-form-desc">Estas son las publicaciones que se muestran en tu web actualmente.</p>
+                        
+                        <div id="posts-list" class="admin-posts-list">
+                            <!-- Dynamic list loaded by JS -->
+                            <div class="admin-loading-spinner text-center">
+                                <i class="fa-solid fa-spinner fa-spin"></i> Cargando publicaciones...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Supabase JS Client CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Script Manager -->
+    <script src="admin.js"></script>
+</body>
+</html>

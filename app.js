@@ -1,3 +1,13 @@
+// Supabase Client Initialization
+// REEMPLAZA ESTAS CLAVES CON LAS DE TU PROPIO PROYECTO DE SUPABASE
+const SUPABASE_URL = "YOUR_SUPABASE_URL_HERE";
+const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY_HERE";
+
+let supabaseClient = null;
+if (typeof window.supabase !== 'undefined' && SUPABASE_URL !== "YOUR_SUPABASE_URL_HERE" && SUPABASE_ANON_KEY !== "YOUR_SUPABASE_ANON_KEY_HERE") {
+    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     
     // ==========================================
@@ -147,8 +157,33 @@ document.addEventListener('DOMContentLoaded', () => {
     async function loadInstagramFeed() {
         if (!instagramGrid) return;
         
+        // 1. Try to load from Supabase if configured
+        if (supabaseClient) {
+            try {
+                const { data: posts, error } = await supabaseClient
+                    .from('posts')
+                    .select('*')
+                    .order('created_at', { ascending: false })
+                    .limit(6);
+                    
+                if (error) throw error;
+                
+                if (posts && posts.length > 0) {
+                    instagramGrid.innerHTML = '';
+                    posts.forEach(post => {
+                        const card = createInstagramCard(post);
+                        instagramGrid.appendChild(card);
+                    });
+                    console.log("Feed loaded in real-time from Supabase.");
+                    return;
+                }
+            } catch (err) {
+                console.warn("Supabase database fetch error, falling back to JSON:", err);
+            }
+        }
+        
+        // 2. Fallback to local JSON file
         try {
-            // Fetch the scraped instagram JSON file
             const response = await fetch('instagram.json');
             if (!response.ok) {
                 throw new Error('No se pudo cargar instagram.json');
@@ -160,14 +195,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
             
-            // Clear grid
             instagramGrid.innerHTML = '';
-            
-            // Render posts
             posts.slice(0, 6).forEach(post => {
                 const card = createInstagramCard(post);
                 instagramGrid.appendChild(card);
             });
+            console.log("Feed loaded from local instagram.json.");
             
         } catch (error) {
             console.warn('Cargando feed de respaldo (Local):', error);
