@@ -179,6 +179,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const { data: posts, error } = await supabaseClient
                     .from('posts')
                     .select('*')
+                    .order('display_order', { ascending: true })
                     .order('created_at', { ascending: false })
                     .limit(6);
                     

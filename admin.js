@@ -106,6 +106,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const caption = document.getElementById('post-caption').value.trim();
             const link = document.getElementById('post-link').value.trim();
             const image = document.getElementById('post-image').value.trim();
+            const displayOrder = parseInt(document.getElementById('post-order').value) || 0;
             
             const isEditing = editingPostId !== null;
             setBtnLoading(postSubmit, isEditing ? "Guardando..." : "Publicando...");
@@ -119,7 +120,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                         .update({
                             caption: caption,
                             link: link || null,
-                            image: image || null
+                            image: image || null,
+                            display_order: displayOrder
                         })
                         .eq('id', editingPostId);
                         
@@ -135,6 +137,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                                 caption: caption,
                                 link: link || null,
                                 image: image || null,
+                                display_order: displayOrder,
                                 created_at: new Date().toISOString()
                             }
                         ]);
@@ -142,6 +145,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     if (error) throw error;
                     showStatus(postStatus, "¡Publicado con éxito! Se mostrará en la web de inmediato.", "success");
                     postForm.reset();
+                    document.getElementById('post-order').value = 0; // Reset a valor por defecto
                 }
                 
                 loadPosts(); // Recargar lista
@@ -198,6 +202,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const { data: posts, error } = await supabaseClient
                 .from('posts')
                 .select('*')
+                .order('display_order', { ascending: true })
                 .order('created_at', { ascending: false });
                 
             if (error) throw error;
@@ -219,11 +224,20 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
-        const sortType = sortPostsSelect ? sortPostsSelect.value : 'newest';
+        const sortType = sortPostsSelect ? sortPostsSelect.value : 'web';
         let sorted = [...loadedPosts];
 
         // Lógica de ordenamiento
-        if (sortType === 'newest') {
+        if (sortType === 'web') {
+            sorted.sort((a, b) => {
+                const orderA = a.display_order !== undefined && a.display_order !== null ? a.display_order : 0;
+                const orderB = b.display_order !== undefined && b.display_order !== null ? b.display_order : 0;
+                if (orderA !== orderB) {
+                    return orderA - orderB;
+                }
+                return new Date(b.created_at || 0) - new Date(a.created_at || 0);
+            });
+        } else if (sortType === 'newest') {
             sorted.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
         } else if (sortType === 'oldest') {
             sorted.sort((a, b) => new Date(a.created_at || 0) - new Date(b.created_at || 0));
@@ -240,6 +254,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const captionText = post.caption || 'Sin texto';
             const hasImage = !!post.image;
             const platformIcon = post.link && post.link.includes('tiktok.com') ? 'fa-brands fa-tiktok' : 'fa-brands fa-instagram';
+            const displayOrderText = post.display_order !== undefined && post.display_order !== null ? ` | Orden: ${post.display_order}` : '';
             
             item.innerHTML = `
                 <div class="admin-post-meta">
@@ -247,7 +262,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <div class="admin-post-details">
                         <p class="admin-post-text">${captionText}</p>
                         <span class="admin-post-info">
-                            ${post.date || new Date(post.created_at).toLocaleDateString('es-ES')} 
+                            ${post.date || new Date(post.created_at).toLocaleDateString('es-ES')}${displayOrderText} 
                             ${hasImage ? '• 🖼️ Con Imagen' : '• 📝 Solo Texto'}
                         </span>
                     </div>
@@ -290,6 +305,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('post-caption').value = post.caption;
         document.getElementById('post-link').value = post.link || '';
         document.getElementById('post-image').value = post.image || '';
+        document.getElementById('post-order').value = post.display_order !== undefined && post.display_order !== null ? post.display_order : 0;
         
         // Actualizar título y textos del formulario
         document.querySelector('.admin-form-section h3').textContent = "Editar Publicación";
@@ -307,6 +323,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     function cancelEditing() {
         editingPostId = null;
         postForm.reset();
+        document.getElementById('post-order').value = 0;
         
         // Restaurar título y textos originales del formulario
         document.querySelector('.admin-form-section h3').textContent = "Nueva Publicación";
