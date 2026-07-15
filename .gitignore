@@ -1,0 +1,31 @@
+# Python Virtual Environment
+venv/
+.venv/
+ENV/
+env/
+
+# Python caching
+__pycache__/
+*.py[cod]
+*$py.class
+
+# IDE and Editor configurations
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# System files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Build and deploy artifacts
+dist/
+build/
+node_modules/
+package-lock.json
+.python-version
