@@ -21,7 +21,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     const postForm = document.getElementById('post-form');
     const postStatus = document.getElementById('post-status');
     const postSubmit = document.getElementById('post-submit');
+    const postCancelEdit = document.getElementById('post-cancel-edit');
     const postsList = document.getElementById('posts-list');
+
+    // Estado de edición
+    let editingPostId = null;
 
     // 1. Check if Supabase keys are configured
     if (!supabaseClient) {
@@ -92,7 +96,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // 5. Post Form Submit
+    // 5. Post Form Submit (Maneja Insertar y Modificar)
     if (postForm) {
         postForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -101,34 +105,62 @@ document.addEventListener('DOMContentLoaded', async () => {
             const link = document.getElementById('post-link').value.trim();
             const image = document.getElementById('post-image').value.trim();
             
-            setBtnLoading(postSubmit, "Publicando...");
+            const isEditing = editingPostId !== null;
+            setBtnLoading(postSubmit, isEditing ? "Guardando..." : "Publicando...");
             hideStatus(postStatus);
             
             try {
-                // Insert new row into the 'posts' table
-                const { error } = await supabaseClient
-                    .from('posts')
-                    .insert([
-                        {
+                if (isEditing) {
+                    // Consulta UPDATE para modificar post existente
+                    const { error } = await supabaseClient
+                        .from('posts')
+                        .update({
                             caption: caption,
                             link: link || null,
-                            image: image || null,
-                            created_at: new Date().toISOString()
-                        }
-                    ]);
-                    
-                if (error) throw error;
+                            image: image || null
+                        })
+                        .eq('id', editingPostId);
+                        
+                    if (error) throw error;
+                    showStatus(postStatus, "¡Publicación modificada con éxito!", "success");
+                    cancelEditing();
+                } else {
+                    // Consulta INSERT para nuevo post
+                    const { error } = await supabaseClient
+                        .from('posts')
+                        .insert([
+                            {
+                                caption: caption,
+                                link: link || null,
+                                image: image || null,
+                                created_at: new Date().toISOString()
+                            }
+                        ]);
+                        
+                    if (error) throw error;
+                    showStatus(postStatus, "¡Publicado con éxito! Se mostrará en la web de inmediato.", "success");
+                    postForm.reset();
+                }
                 
-                showStatus(postStatus, "¡Publicado con éxito! Se mostrará en la web de inmediato.", "success");
-                postForm.reset();
-                loadPosts(); // Reload active list
+                loadPosts(); // Recargar lista
                 
             } catch (err) {
-                console.error("Publish error:", err);
-                showStatus(postStatus, err.message || "Error al publicar. Verifica los permisos de tu base de datos.", "error");
+                console.error("Submit post error:", err);
+                showStatus(postStatus, err.message || "Error al procesar el post. Verifica los permisos de tu base de datos.", "error");
             } finally {
-                resetBtnState(postSubmit, "Publicar en la Web", "fa-solid fa-paper-plane");
+                resetBtnState(
+                    postSubmit, 
+                    editingPostId !== null ? "Guardando Cambios" : "Publicar en la Web", 
+                    editingPostId !== null ? "fa-solid fa-check" : "fa-solid fa-paper-plane"
+                );
             }
+        });
+    }
+
+    // 6. Cancel Edit Button Click
+    if (postCancelEdit) {
+        postCancelEdit.addEventListener('click', () => {
+            cancelEditing();
         });
     }
 
@@ -154,7 +186,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         postsList.innerHTML = '<div class="admin-loading-spinner text-center"><i class="fa-solid fa-spinner fa-spin"></i> Cargando publicaciones...</div>';
         
         try {
-            // Fetch posts ordered by created_at descending
             const { data: posts, error } = await supabaseClient
                 .from('posts')
                 .select('*')
@@ -173,7 +204,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const item = document.createElement('div');
                 item.className = 'admin-post-item';
                 
-                // Format text snippet
                 const captionText = post.caption || 'Sin texto';
                 const hasImage = !!post.image;
                 const platformIcon = post.link && post.link.includes('tiktok.com') ? 'fa-brands fa-tiktok' : 'fa-brands fa-instagram';
@@ -189,12 +219,25 @@ document.addEventListener('DOMContentLoaded', async () => {
                             </span>
                         </div>
                     </div>
-                    <button class="btn-delete" data-id="${post.id}" title="Eliminar publicación">
-                        <i class="fa-solid fa-trash-can"></i>
-                    </button>
+                    <div class="admin-post-actions" style="display: flex; gap: 0.5rem; flex-shrink: 0;">
+                        <button class="btn-edit-post" data-id="${post.id}" title="Editar publicación" style="background: none; border: none; color: var(--accent); cursor: pointer; font-size: 1.1rem; padding: 0.5rem; border-radius: 50%; transition: var(--transition); display: flex; align-items: center; justify-content: center;">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </button>
+                        <button class="btn-delete" data-id="${post.id}" title="Eliminar publicación">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
                 `;
                 
-                // Add delete event handler
+                // Event listener para editar
+                const editBtn = item.querySelector('.btn-edit-post');
+                if (editBtn) {
+                    editBtn.addEventListener('click', () => {
+                        startEditing(post);
+                    });
+                }
+                
+                // Event listener para eliminar
                 const deleteBtn = item.querySelector('.btn-delete');
                 if (deleteBtn) {
                     deleteBtn.addEventListener('click', async () => {
@@ -214,6 +257,40 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
     
+    function startEditing(post) {
+        editingPostId = post.id;
+        document.getElementById('post-caption').value = post.caption;
+        document.getElementById('post-link').value = post.link || '';
+        document.getElementById('post-image').value = post.image || '';
+        
+        // Actualizar título y textos del formulario
+        document.querySelector('.admin-form-section h3').textContent = "Editar Publicación";
+        document.querySelector('.admin-form-section .admin-form-desc').textContent = "Modifica los campos del post y guarda los cambios.";
+        postSubmit.querySelector('.btn-text').textContent = "Guardar Cambios";
+        postSubmit.querySelector('i').className = "fa-solid fa-check";
+        
+        // Mostrar botón de cancelar
+        if (postCancelEdit) postCancelEdit.style.display = 'block';
+        
+        // Hacer scroll hasta el formulario en móviles
+        document.querySelector('.admin-form-section').scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    function cancelEditing() {
+        editingPostId = null;
+        postForm.reset();
+        
+        // Restaurar título y textos originales del formulario
+        document.querySelector('.admin-form-section h3').textContent = "Nueva Publicación";
+        document.querySelector('.admin-form-section .admin-form-desc').textContent = "Crea una nota de texto para tu comunidad, opcionalmente enlazada a tus redes.";
+        postSubmit.querySelector('.btn-text').textContent = "Publicar en la Web";
+        postSubmit.querySelector('i').className = "fa-solid fa-paper-plane";
+        
+        // Ocultar botón de cancelar
+        if (postCancelEdit) postCancelEdit.style.display = 'none';
+        hideStatus(postStatus);
+    }
+    
     async function deletePost(id) {
         try {
             const { error } = await supabaseClient
@@ -223,7 +300,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 
             if (error) throw error;
             
-            loadPosts(); // Reload list
+            // Si el post eliminado se estaba editando, cancelamos la edición
+            if (editingPostId === id) {
+                cancelEditing();
+            }
+            
+            loadPosts();
         } catch (err) {
             console.error("Delete post error:", err);
             alert(`Error al eliminar la publicación: ${err.message}`);
