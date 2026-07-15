@@ -10,6 +10,22 @@ if (typeof window.supabase !== 'undefined' && SUPABASE_URL !== "YOUR_SUPABASE_UR
 
 document.addEventListener('DOMContentLoaded', () => {
     
+    // Secret entrance to admin panel (Clicking logo 5 times in 3 seconds)
+    let logoClicks = 0;
+    const logos = document.querySelectorAll('.logo');
+    logos.forEach(logo => {
+        logo.addEventListener('click', () => {
+            logoClicks++;
+            if (logoClicks >= 5) {
+                window.location.href = 'admin.html';
+            }
+            // Reset clicks after 3 seconds
+            setTimeout(() => {
+                logoClicks = 0;
+            }, 3000);
+        });
+    });
+
     // ==========================================
     // 1. MOBILE MENU TOGGLE
     // ==========================================
