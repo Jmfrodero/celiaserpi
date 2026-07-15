@@ -23,9 +23,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     const postSubmit = document.getElementById('post-submit');
     const postCancelEdit = document.getElementById('post-cancel-edit');
     const postsList = document.getElementById('posts-list');
+    const sortPostsSelect = document.getElementById('sort-posts');
 
-    // Estado de edición
+    // Estado global de la aplicación
     let editingPostId = null;
+    let loadedPosts = [];
 
     // 1. Check if Supabase keys are configured
     if (!supabaseClient) {
@@ -164,6 +166,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+    // 7. Sort Dropdown Change
+    if (sortPostsSelect) {
+        sortPostsSelect.addEventListener('change', () => {
+            renderSortedPosts();
+        });
+    }
+
     // ==========================================
     // UTILITY FUNCTIONS
     // ==========================================
@@ -193,68 +202,87 @@ document.addEventListener('DOMContentLoaded', async () => {
                 
             if (error) throw error;
             
-            if (!posts || posts.length === 0) {
-                postsList.innerHTML = '<p class="text-center text-muted">No tienes publicaciones activas aún.</p>';
-                return;
-            }
-            
-            postsList.innerHTML = '';
-            
-            posts.forEach(post => {
-                const item = document.createElement('div');
-                item.className = 'admin-post-item';
-                
-                const captionText = post.caption || 'Sin texto';
-                const hasImage = !!post.image;
-                const platformIcon = post.link && post.link.includes('tiktok.com') ? 'fa-brands fa-tiktok' : 'fa-brands fa-instagram';
-                
-                item.innerHTML = `
-                    <div class="admin-post-meta">
-                        <span class="admin-post-icon"><i class="${platformIcon}"></i></span>
-                        <div class="admin-post-details">
-                            <p class="admin-post-text">${captionText}</p>
-                            <span class="admin-post-info">
-                                ${post.date || new Date(post.created_at).toLocaleDateString('es-ES')} 
-                                ${hasImage ? '• 🖼️ Con Imagen' : '• 📝 Solo Texto'}
-                            </span>
-                        </div>
-                    </div>
-                    <div class="admin-post-actions" style="display: flex; gap: 0.5rem; flex-shrink: 0;">
-                        <button class="btn-edit-post" data-id="${post.id}" title="Editar publicación" style="background: none; border: none; color: var(--accent); cursor: pointer; font-size: 1.1rem; padding: 0.5rem; border-radius: 50%; transition: var(--transition); display: flex; align-items: center; justify-content: center;">
-                            <i class="fa-solid fa-pen-to-square"></i>
-                        </button>
-                        <button class="btn-delete" data-id="${post.id}" title="Eliminar publicación">
-                            <i class="fa-solid fa-trash-can"></i>
-                        </button>
-                    </div>
-                `;
-                
-                // Event listener para editar
-                const editBtn = item.querySelector('.btn-edit-post');
-                if (editBtn) {
-                    editBtn.addEventListener('click', () => {
-                        startEditing(post);
-                    });
-                }
-                
-                // Event listener para eliminar
-                const deleteBtn = item.querySelector('.btn-delete');
-                if (deleteBtn) {
-                    deleteBtn.addEventListener('click', async () => {
-                        const id = deleteBtn.getAttribute('data-id');
-                        if (confirm('¿Estás segura de que quieres eliminar esta publicación?')) {
-                            await deletePost(id);
-                        }
-                    });
-                }
-                
-                postsList.appendChild(item);
-            });
+            loadedPosts = posts || [];
+            renderSortedPosts();
             
         } catch (err) {
             console.error("Load posts error:", err);
             postsList.innerHTML = `<p class="text-center text-error">Error al cargar publicaciones: ${err.message || 'Verifica RLS.'}</p>`;
         }
+    }
+
+    function renderSortedPosts() {
+        if (!postsList) return;
+        
+        if (loadedPosts.length === 0) {
+            postsList.innerHTML = '<p class="text-center text-muted">No tienes publicaciones activas aún.</p>';
+            return;
+        }
+
+        const sortType = sortPostsSelect ? sortPostsSelect.value : 'newest';
+        let sorted = [...loadedPosts];
+
+        // Lógica de ordenamiento
+        if (sortType === 'newest') {
+            sorted.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+        } else if (sortType === 'oldest') {
+            sorted.sort((a, b) => new Date(a.created_at || 0) - new Date(b.created_at || 0));
+        } else if (sortType === 'alphabetical') {
+            sorted.sort((a, b) => (a.caption || '').localeCompare(b.caption || ''));
+        }
+
+        postsList.innerHTML = '';
+        
+        sorted.forEach(post => {
+            const item = document.createElement('div');
+            item.className = 'admin-post-item';
+            
+            const captionText = post.caption || 'Sin texto';
+            const hasImage = !!post.image;
+            const platformIcon = post.link && post.link.includes('tiktok.com') ? 'fa-brands fa-tiktok' : 'fa-brands fa-instagram';
+            
+            item.innerHTML = `
+                <div class="admin-post-meta">
+                    <span class="admin-post-icon"><i class="${platformIcon}"></i></span>
+                    <div class="admin-post-details">
+                        <p class="admin-post-text">${captionText}</p>
+                        <span class="admin-post-info">
+                            ${post.date || new Date(post.created_at).toLocaleDateString('es-ES')} 
+                            ${hasImage ? '• 🖼️ Con Imagen' : '• 📝 Solo Texto'}
+                        </span>
+                    </div>
+                </div>
+                <div class="admin-post-actions" style="display: flex; gap: 0.5rem; flex-shrink: 0;">
+                    <button class="btn-edit-post" data-id="${post.id}" title="Editar publicación" style="background: none; border: none; color: var(--accent); cursor: pointer; font-size: 1.1rem; padding: 0.5rem; border-radius: 50%; transition: var(--transition); display: flex; align-items: center; justify-content: center;">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button class="btn-delete" data-id="${post.id}" title="Eliminar publicación">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                </div>
+            `;
+            
+            // Event listener para editar
+            const editBtn = item.querySelector('.btn-edit-post');
+            if (editBtn) {
+                editBtn.addEventListener('click', () => {
+                    startEditing(post);
+                });
+            }
+            
+            // Event listener para eliminar
+            const deleteBtn = item.querySelector('.btn-delete');
+            if (deleteBtn) {
+                deleteBtn.addEventListener('click', async () => {
+                    const id = deleteBtn.getAttribute('data-id');
+                    if (confirm('¿Estás segura de que quieres eliminar esta publicación?')) {
+                        await deletePost(id);
+                    }
+                });
+            }
+            
+            postsList.appendChild(item);
+        });
     }
     
     function startEditing(post) {
