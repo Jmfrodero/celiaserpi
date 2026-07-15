@@ -295,18 +295,20 @@ section {
     align-items: center;
     padding-top: 120px;
     padding-bottom: 60px;
-    background: radial-gradient(circle at 80% 20%, #FAF5ED 0%, var(--bg-primary) 70%);
+    background: radial-gradient(circle at 50% 50%, #FAF5ED 0%, var(--bg-primary) 70%);
 }
 
 .hero-container {
-    display: grid;
-    grid-template-columns: 1.2fr 0.8fr;
-    gap: 3.5rem;
+    display: flex;
+    flex-direction: column;
     align-items: center;
+    justify-content: center;
+    text-align: center;
 }
 
 .hero-content {
-    max-width: 650px;
+    max-width: 800px;
+    margin: 0 auto;
 }
 
 .hero-badge {
@@ -333,12 +335,16 @@ section {
     color: var(--text-secondary);
     margin-bottom: 2.5rem;
     font-weight: 400;
+    max-width: 650px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .hero-actions {
     display: flex;
     gap: 1.2rem;
     flex-wrap: wrap;
+    justify-content: center;
 }
 
 /* Book Graphic (CSS Illustration) */
@@ -1189,22 +1195,7 @@ section {
     }
     
     .hero-container {
-        grid-template-columns: 1fr;
-        gap: 4rem;
-        text-align: center;
         padding-top: 40px;
-    }
-    
-    .hero-content {
-        margin: 0 auto;
-    }
-    
-    .hero-actions {
-        justify-content: center;
-    }
-    
-    .hero-visual {
-        order: -1; /* Display book on top of text on mobile */
     }
     
     .section-grid {
