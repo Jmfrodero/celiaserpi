@@ -477,63 +477,7 @@ section {
     align-items: center;
 }
 
-.about-image-card {
-    background-color: var(--bg-primary);
-    border-radius: 20px;
-    padding: 2.5rem;
-    box-shadow: var(--shadow-md);
-    position: relative;
-    border: 1px solid var(--border-color);
-}
 
-.about-placeholder-img {
-    height: 300px;
-    background-color: var(--accent-light);
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 5rem;
-    color: var(--accent);
-    position: relative;
-    overflow: hidden;
-}
-
-.about-placeholder-img::before {
-    content: '';
-    position: absolute;
-    width: 150%;
-    height: 150%;
-    background: radial-gradient(circle, rgba(255,255,255,0.4) 0%, transparent 60%);
-}
-
-.about-stats {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
-    margin-top: 2rem;
-    border-top: 1px solid var(--border-color);
-    padding-top: 1.5rem;
-}
-
-.stat-item {
-    text-align: center;
-}
-
-.stat-num {
-    display: block;
-    font-family: var(--font-serif);
-    font-size: 1.6rem;
-    font-weight: 700;
-    color: var(--text-primary);
-}
-
-.stat-label {
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    color: var(--text-muted);
-    letter-spacing: 0.05em;
-}
 
 .about-features {
     display: flex;
@@ -924,10 +868,24 @@ section {
 }
 
 .contact-detail-item p {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: var(--text-primary);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-secondary);
     margin: 0;
+    line-height: 1.5;
+}
+
+.contact-detail-item p a {
+    color: var(--text-primary);
+    font-weight: 600;
+    border-bottom: 1px solid rgba(166, 125, 114, 0.4);
+    padding-bottom: 1px;
+}
+
+.contact-detail-item p a:hover {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
 }
 
 .social-circles {
@@ -1243,7 +1201,73 @@ section {
 }
 
 /* ==========================================
-   SKILLS & CURRICULUM SECTION
+   ABOUT CENTERED LAYOUT
+   ========================================== */
+.about-content-centered {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.about-paragraphs {
+    font-size: 1.05rem;
+    line-height: 1.8;
+    color: var(--text-secondary);
+    margin-bottom: 3.5rem;
+}
+
+.about-features-horizontal {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    border-top: 1px solid var(--border-color);
+    padding-top: 3rem;
+    margin-top: 3rem;
+}
+
+.about-features-horizontal .feature-item {
+    display: flex;
+    gap: 1.2rem;
+}
+
+.about-features-horizontal .feature-icon {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    background-color: var(--bg-primary);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+    font-size: 1.25rem;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid rgba(235, 225, 211, 0.5);
+}
+
+.about-features-horizontal .feature-item h4 {
+    font-size: 1.15rem;
+    color: var(--text-primary);
+    margin-bottom: 0.4rem;
+}
+
+.about-features-horizontal .feature-item p {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin: 0;
+}
+
+@media (max-width: 768px) {
+    .about-features-horizontal {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        padding-top: 2rem;
+        margin-top: 2rem;
+    }
+}
+
+/* ==========================================
+   EDITORIAL SKILLS LIST
    ========================================== */
 .skills-section {
     padding: 7rem 0;
@@ -1251,73 +1275,151 @@ section {
     border-bottom: 1px solid var(--border-color);
 }
 
-.skills-grid {
+.editorial-skills-list {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 2.5rem;
+    gap: 3rem 2.5rem;
 }
 
-.skill-card {
-    background-color: var(--bg-card);
-    padding: 3rem 2.2rem;
-    border-radius: 16px;
-    border: 1px solid var(--border-color);
-    transition: var(--transition);
-}
-
-.skill-card:hover {
-    transform: translateY(-5px);
-    border-color: var(--accent);
-    box-shadow: var(--shadow-md);
-}
-
-.skill-icon {
-    width: 60px;
-    height: 60px;
-    background-color: var(--accent-light);
-    color: var(--accent);
-    border-radius: 50%;
+.editorial-skill-item {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    margin-bottom: 2rem;
-    transition: var(--transition);
+    flex-direction: column;
 }
 
-.skill-card:hover .skill-icon {
-    background-color: var(--accent);
-    color: var(--bg-card);
-}
-
-.skill-card h4 {
+.editorial-skill-item h4 {
     font-family: var(--font-serif);
     font-size: 1.25rem;
     color: var(--text-primary);
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 0.75rem;
     margin-bottom: 1rem;
-    font-weight: 700;
+    transition: var(--transition);
 }
 
-.skill-card p {
+.editorial-skill-item:hover h4 {
+    border-bottom-color: var(--accent);
+}
+
+.editorial-skill-item p {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* ==========================================
+   EDITORIAL SERVICES GRID (ELEGANT VERSION)
+   ========================================== */
+.editorial-services-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 3rem;
+}
+
+.editorial-service-card {
+    background-color: transparent;
+    border-top: 2px solid var(--border-color);
+    padding: 2.5rem 0.5rem;
+    transition: var(--transition);
+    display: flex;
+    flex-direction: column;
+}
+
+.editorial-service-card:hover {
+    border-top-color: var(--accent);
+    transform: translateY(-4px);
+}
+
+.service-index {
+    font-family: var(--font-serif);
+    font-size: 1.8rem;
+    color: var(--accent);
+    font-weight: 700;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.editorial-service-card h3 {
+    font-size: 1.5rem;
+    font-family: var(--font-serif);
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+}
+
+.editorial-service-card p {
     font-size: 0.95rem;
     color: var(--text-muted);
-    line-height: 1.6;
+    line-height: 1.65;
+    margin-bottom: 1.5rem;
 }
 
+.service-bullet-list {
+    list-style: none;
+    margin-bottom: 2rem;
+    margin-top: auto; /* Push bullet list to bottom before link */
+}
+
+.service-bullet-list li {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.6rem;
+    position: relative;
+    padding-left: 1.2rem;
+}
+
+.service-bullet-list li::before {
+    content: "—";
+    color: var(--accent);
+    position: absolute;
+    left: 0;
+}
+
+.service-action-link {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--accent);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: var(--transition);
+}
+
+.service-action-link i {
+    font-size: 0.8rem;
+    transition: var(--transition);
+}
+
+.service-action-link:hover {
+    color: var(--accent-hover);
+}
+
+.service-action-link:hover i {
+    transform: translateX(4px);
+}
+
+/* RESPONSIVE DESIGN FOR NEW ELEMENTS */
 @media (max-width: 992px) {
-    .skills-grid {
+    .editorial-skills-list {
         grid-template-columns: repeat(2, 1fr);
+        gap: 2.5rem 2rem;
+    }
+    .editorial-services-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 2.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .editorial-services-grid {
+        grid-template-columns: 1fr;
         gap: 2rem;
     }
 }
 
 @media (max-width: 600px) {
-    .skills-grid {
+    .editorial-skills-list {
         grid-template-columns: 1fr;
-        gap: 1.5rem;
-    }
-    .skill-card {
-        padding: 2.5rem 1.8rem;
+        gap: 2rem;
     }
 }
 
